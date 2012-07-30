@@ -72,7 +72,10 @@ namespace EmailSearch.Common
     private DateTime ParseDate()
     {
       var date = ParseHeaderItem("\nDate:");
-      return (DateTime.ParseExact(date, "ddd, dd MMM yyyy hh:mm:ss zzzz", System.Globalization.DateTimeFormatInfo.InvariantInfo));
+      if (date.StartsWith("Sun, ") || date.StartsWith("Mon, ") || date.StartsWith("Tue, ") || date.StartsWith("Wed, ") || date.StartsWith("Thu, ") || date.StartsWith("Fri, ") || date.StartsWith("Sat, "))
+        return (DateTime.ParseExact(date, "ddd, dd MMM yyyy HH:mm:ss zzzz", System.Globalization.DateTimeFormatInfo.InvariantInfo, System.Globalization.DateTimeStyles.AdjustToUniversal));
+      else
+        return (DateTime.ParseExact(date, "dd MMM yyyy HH:mm:ss zzzz", System.Globalization.DateTimeFormatInfo.InvariantInfo, System.Globalization.DateTimeStyles.AdjustToUniversal));
     }
 
     private string ParseHeaderItem(string header)

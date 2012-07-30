@@ -84,7 +84,7 @@ namespace EmailSearch.Tests
     #endregion
 
 
-    private const string testMessageBody = "Received: from [192.168.1.50] by 192.168.1.22 (AppleShare IP Mail Server 6.2) id 23807 via TCP with SMTP; Wed, 07 Mar 2001 10:53:42 -0800\nMessage-id: <1010307105342.1d42bfa.c0a80116.ASIP6.2.23807@192.168.1.22>\nX-Mailer: Microsoft Outlook Express for Macintosh - 4.01 (295) \nDate: Wed, 07 Mar 2001 10:53:46 -0800\nSubject: Domain name\nFrom: \"Joe Executive\" <JExec@company.com>\nTo: Mar Smith <MSmith@company.com>\n	, Kar <KWilson@company.com>\n	, David <DProthero@company.com>\nX-Priority: 3\nStatus: RO\nMIME-Version: 1.0\nContent-Type: multipart/mixed;\n	boundary=\"--boundary-LibPST-iamunique-1178027265_-_-\"\n\n\n----boundary-LibPST-iamunique-1178027265_-_-\nContent-Type: text/plain; charset=\"US-ASCII\"\n\nMar\nshouldn't we have the url\n\ncompany.com\n\nand put info about our organization, publications etc.  \n\nJoe\n\ncopy kar, dav\n\n----boundary-LibPST-iamunique-1178027265_-_---\n";
+    private const string testMessageBody = "Received: from [192.168.1.50] by 192.168.1.22 (AppleShare IP Mail Server 6.2) id 23807 via TCP with SMTP; Wed, 07 Mar 2001 16:53:42 -0800\nMessage-id: <1010307105342.1d42bfa.c0a80116.ASIP6.2.23807@192.168.1.22>\nX-Mailer: Microsoft Outlook Express for Macintosh - 4.01 (295) \nDate: Wed, 07 Feb 2001 16:53:46 -0800\nSubject: Domain name\nFrom: \"Joe Executive\" <JExec@company.com>\nTo: Mar Smith <MSmith@company.com>\n	, Kar <KWilson@company.com>\n	, David <DProthero@company.com>\nX-Priority: 3\nStatus: RO\nMIME-Version: 1.0\nContent-Type: multipart/mixed;\n	boundary=\"--boundary-LibPST-iamunique-1178027265_-_-\"\n\n\n----boundary-LibPST-iamunique-1178027265_-_-\nContent-Type: text/plain; charset=\"US-ASCII\"\n\nMar\nshouldn't we have the url\n\ncompany.com\n\nand put info about our organization, publications etc.  \n\nJoe\n\ncopy kar, dav\n\n----boundary-LibPST-iamunique-1178027265_-_---\n";
     
     /// <summary>
     ///A test for LoadFromFile
@@ -110,9 +110,9 @@ namespace EmailSearch.Tests
         Assert.AreEqual("David", target.Recipients[2].Name);
         Assert.AreEqual("DProthero@company.com", target.Recipients[2].EmailAddress);
         Assert.AreEqual(2001, target.Date.Year);
-        Assert.AreEqual(3, target.Date.Month);
-        Assert.AreEqual(7, target.Date.Day);
-        Assert.AreEqual(10, target.Date.Hour);
+        Assert.AreEqual(2, target.Date.Month);
+        Assert.AreEqual(8, target.Date.Day);
+        Assert.AreEqual(0, target.Date.Hour);
         Assert.AreEqual(53, target.Date.Minute);
         Assert.AreEqual(46, target.Date.Second);
       }
@@ -122,10 +122,35 @@ namespace EmailSearch.Tests
       }
     }
 
-    private string CreateTestEmailFile()
+    /// <summary>
+    ///A test for LoadFromFile - alternate date format
+    ///</summary>
+    [TestMethod()]
+    public void AlternateDateTest()
+    {
+      EmailMessage target = new EmailMessage();
+      string fileName = CreateTestEmailFile(testMessageBody.Replace("\nDate: Wed, 07 Feb 2001 16:53:46 -0800\n", "\nDate: 28 Mar 2002 23:52:14 -0000\n"));
+
+      try
+      {
+        target.LoadFromFile(fileName);
+        Assert.AreEqual(2002, target.Date.Year);
+        Assert.AreEqual(3, target.Date.Month);
+        Assert.AreEqual(28, target.Date.Day);
+        Assert.AreEqual(23, target.Date.Hour);
+        Assert.AreEqual(52, target.Date.Minute);
+        Assert.AreEqual(14, target.Date.Second);
+      }
+      finally
+      {
+        File.Delete(fileName);
+      }
+    }
+
+    private string CreateTestEmailFile(string messageBody = null)
     {
       string tempFileName = Path.GetTempFileName();
-      File.WriteAllText(tempFileName, testMessageBody);
+      File.WriteAllText(tempFileName, messageBody == null ? testMessageBody : messageBody);
       return (tempFileName);
     }
 
